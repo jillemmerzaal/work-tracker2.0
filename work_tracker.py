@@ -28,13 +28,26 @@ PAY_PERIOD_START = datetime(2025, 9, 8).date()
 PAY_PERIOD_LENGTH = 14
 TARGET_HOURS = 60
 
-# Helper function
+# Helper functions
 def format_hours_minutes(hours_float):
     sign = "-" if hours_float < 0 else ""
     total_minutes = int(round(abs(hours_float) * 60))
     hours = total_minutes // 60
     minutes = total_minutes % 60
     return f"{sign}{hours}h {minutes}m"
+
+def make_serialisable(val):
+    if pd.isna(val):
+        return ""
+
+    if isinstance(val, (datetime, pd.Timestamp, pd.Timedelta)):
+        return str(val)
+
+    if isinstance(val, (time,)):
+        return val.strftime("%H:%M")
+
+    return val
+
 
 # Load data
 records = worksheet.get_all_records()
@@ -74,6 +87,7 @@ if submitted:
     }
 
     df = pd.concat([df, pd.DataFrame([new_entry])], ignore_index=True)
+    df_to_upload = df.map(make_serialisable)
     worksheet.clear()
     worksheet.update([df.columns.values.tolist()] + df.values.tolist())
     st.success(f"Logged {round(work_duration, 2)} hours for {date}")
