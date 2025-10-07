@@ -83,8 +83,12 @@ if submitted:
         "Work Duration (hrs)": round(work_duration, 2)
     }
 
-    # ---- Append new row only----
-    worksheet.append_rows([make_serializable(v) for v in new_entry.values()])
+    #---- Update full worksheet----
+    worksheet.clear()
+    worksheet.update([df.columns.values.tolist()] + df.values.tolist())
+
+    # # ---- Append new row only----
+    # worksheet.append_rows([make_serializable(v) for v in new_entry.values()])
 
     # ---- Reload the full sheet----
     df = load_data()
