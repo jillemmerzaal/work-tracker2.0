@@ -123,8 +123,7 @@ if not df.empty:
 
 # --- Display current data ---
 st.subheader("Logged Hours")
-df = df.sort_values(df.columns[0], ascending=False)
-st.dataframe(df)
+st.dataframe(df.sort_values(df.columns[0], ascending=False))
 # # Reverse logs
 # df = df.sort_values(by="Date", ascending=False)
 #
@@ -138,7 +137,7 @@ st.dataframe(df)
 # current_period_df = df[(df["Date"] >= current_period_start) & (df["Date"] <= current_period_end)]
 # current_total_hours = current_period_df["Work Duration (hrs)"].sum()
 # current_overtime = current_total_hours - TARGET_HOURS
-#
+
 # st.subheader("Current Pay Period Summary")
 # st.write(f"**Period:** {current_period_start} to {current_period_end}")
 # st.write(f"**Total Hours:** {format_hours_minutes(current_total_hours)}")
