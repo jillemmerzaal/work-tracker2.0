@@ -115,13 +115,15 @@ if submitted:
 
 
 # ----Pay period summary----
+df_summery = load_data()
 today = datetime.now().date()
 days_since_start = (today - PAY_PERIOD_START).days
 current_period_index = days_since_start // PAY_PERIOD_LENGTH
 current_period_start = PAY_PERIOD_START + timedelta(days=current_period_index * PAY_PERIOD_LENGTH)
 current_period_end = current_period_start + timedelta(days=PAY_PERIOD_LENGTH - 1)
 
-current_period_df = df[(df["Date"] >= current_period_start) & (df["Date"] <= current_period_end)]
+current_period_df = df_summery[(pd.to_datetime(df_summery["Date"]).dt.date >= current_period_start) &
+                       (pd.to_datetime(df_summery["Date"]).dt.date <= current_period_end)]
 current_total_hours = current_period_df["Work Duration (hrs)"].sum()
 current_overtime = current_total_hours - TARGET_HOURS
 
@@ -135,7 +137,8 @@ completed_periods = []
 for i in range(current_period_index):
     period_start = PAY_PERIOD_START + timedelta(days=i * PAY_PERIOD_LENGTH)
     period_end = period_start + timedelta(days=PAY_PERIOD_LENGTH - 1)
-    period_df = df[(df["Date"] >= period_start) & (df["Date"] <= period_end)]
+    period_df = df_summery[(pd.to_datetime(df_summery["Date"]).dt.date >= period_start) &
+                   (pd.to_datetime(df_summery["Date"]).dt.date <= period_end)]
     total_hours = period_df["Work Duration (hrs)"].sum()
     overtime = total_hours - TARGET_HOURS
     completed_periods.append({
@@ -160,39 +163,39 @@ st.subheader("Logged Work Entries (Newest First)")
 st.dataframe(df.sort_values(by=["Date"], ascending=False))
 
 # ----Edit/Delete----
-st.subheader("Edit or Delete Existing Entry")
-if not df.empty:
-    selected_date = st.selectbox("Select a date to edit/delete", sorted(df["Date"].unique(), reverse=True))
-    entry = df[df["Date"] == selected_date].iloc[0]
-
-    with st.form("edit_form"):
-        new_start = st.time_input("Start Time", value=datetime.strptime(entry["Start Time"], "%H:%M").time())
-        new_end = st.time_input("End Time", value=datetime.strptime(entry["End Time"], "%H:%M").time())
-        new_break_start = st.time_input("Break Start", value=datetime.strptime(entry["Break Start"], "%H:%M").time())
-        new_break_end = st.time_input("Break End", value=datetime.strptime(entry["Break End"], "%H:%M").time())
-        update = st.form_submit_button("Update Entry")
-        delete = st.form_submit_button("Delete Entry")
-
-    if update:
-        start_dt = datetime.combine(selected_date, new_start)
-        end_dt = datetime.combine(selected_date, new_end)
-        break_start_dt = datetime.combine(selected_date, new_break_start)
-        break_end_dt = datetime.combine(selected_date, new_break_end)
-        work_duration = (end_dt - start_dt - (break_end_dt - break_start_dt)).total_seconds() / 3600
-
-        df.loc[df["Date"] == selected_date, ["Start Time", "End Time", "Break Start", "Break End", "Work Duration (hrs)"]] = [
-            new_start.strftime("%H:%M"),
-            new_end.strftime("%H:%M"),
-            new_break_start.strftime("%H:%M"),
-            new_break_end.strftime("%H:%M"),
-            round(work_duration, 2)
-        ]
-        worksheet.clear()
-        worksheet.update([df.columns.values.tolist()] + df.values.tolist())
-        st.success(f"Updated entry for {selected_date}")
-
-    if delete:
-        df = df[df["Date"] != selected_date]
-        worksheet.clear()
-        worksheet.update([df.columns.values.tolist()] + df.values.tolist())
-        st.success(f"Deleted entry for {selected_date}")
+# st.subheader("Edit or Delete Existing Entry")
+# if not df.empty:
+#     selected_date = st.selectbox("Select a date to edit/delete", sorted(df["Date"].unique(), reverse=True))
+#     entry = df[df["Date"] == selected_date].iloc[0]
+#
+#     with st.form("edit_form"):
+#         new_start = st.time_input("Start Time", value=datetime.strptime(entry["Start Time"], "%H:%M").time())
+#         new_end = st.time_input("End Time", value=datetime.strptime(entry["End Time"], "%H:%M").time())
+#         new_break_start = st.time_input("Break Start", value=datetime.strptime(entry["Break Start"], "%H:%M").time())
+#         new_break_end = st.time_input("Break End", value=datetime.strptime(entry["Break End"], "%H:%M").time())
+#         update = st.form_submit_button("Update Entry")
+#         delete = st.form_submit_button("Delete Entry")
+#
+#     if update:
+#         start_dt = datetime.combine(selected_date, new_start)
+#         end_dt = datetime.combine(selected_date, new_end)
+#         break_start_dt = datetime.combine(selected_date, new_break_start)
+#         break_end_dt = datetime.combine(selected_date, new_break_end)
+#         work_duration = (end_dt - start_dt - (break_end_dt - break_start_dt)).total_seconds() / 3600
+#
+#         df.loc[df["Date"] == selected_date, ["Start Time", "End Time", "Break Start", "Break End", "Work Duration (hrs)"]] = [
+#             new_start.strftime("%H:%M"),
+#             new_end.strftime("%H:%M"),
+#             new_break_start.strftime("%H:%M"),
+#             new_break_end.strftime("%H:%M"),
+#             round(work_duration, 2)
+#         ]
+#         worksheet.clear()
+#         worksheet.update([df.columns.values.tolist()] + df.values.tolist())
+#         st.success(f"Updated entry for {selected_date}")
+#
+#     if delete:
+#         df = df[df["Date"] != selected_date]
+#         worksheet.clear()
+#         worksheet.update([df.columns.values.tolist()] + df.values.tolist())
+#         st.success(f"Deleted entry for {selected_date}")
