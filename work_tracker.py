@@ -84,7 +84,7 @@ if submitted:
     }
 
     df = pd.concat([df, pd.DataFrame([new_entry])], ignore_index=True)
-    df_to_upload = df.map(make_serialisable)
+    df_to_upload = df.map(make_serializable)
     worksheet.clear()
     worksheet.update([df.columns.values.tolist()] + df.values.tolist())
     st.success(f"Logged {round(work_duration, 2)} hours for {date}")
