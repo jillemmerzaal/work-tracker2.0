@@ -39,23 +39,10 @@ def make_serializable(val):
 
 def load_data():
     """Load or initialize the Google Sheet data."""
-    values = worksheet.get_all_values()
-
-    # If sheet is empty, add headers
-    if not values:
-        worksheet.append_row(HEADERS)
-        df = pd.DataFrame(columns=HEADERS)
-        return df
-
-    # If only headers exist but no data
-    if len(values) == 1:
-        df = pd.DataFrame(columns=values[0])
-        return df
-
-    # Otherwise, convert existing values into a DataFrame
-    df = pd.DataFrame(values[1:], columns=values[0])
-    if "Date" in df.columns:
-        df["Date"] = pd.to_datetime(df["Date"], errors="coerce").dt.date
+    records = worksheet.get_all_records()
+    df = pd.DataFrame(records)
+    if not df.empty:
+        df["Date"] = pd.to_datetime(df["Date"]).dt.date
     return df
 
 def save_to_gsheet(df):
