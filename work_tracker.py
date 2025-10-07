@@ -43,6 +43,8 @@ def load_data():
     df = pd.DataFrame(records)
     if not df.empty:
         df["Date"] = pd.to_datetime(df["Date"]).dt.date
+    else:
+        df = pd.DataFrame(columns=["Date", "Start Time", "End Time", "Work Duration (hrs)"])
     return df
 
 # ----Load data from Google sheets----
