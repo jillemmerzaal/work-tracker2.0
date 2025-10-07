@@ -21,7 +21,7 @@ PAY_PERIOD_START = datetime(2025, 9, 8).date()
 PAY_PERIOD_LENGTH = 14
 TARGET_HOURS = 60
 
-# Helper functions
+# ----Helper functions----
 def format_hours_minutes(hours_float):
     sign = "-" if hours_float < 0 else ""
     total_minutes = int(round(abs(hours_float) * 60))
@@ -38,13 +38,25 @@ def make_serializable(val):
         return val.strftime("%H:%M")
     return val
 
+def load_data():
+    """Load the latest data from the Google Sheet into a DataFrame."""
+    records = worksheet.get_all_records()
+    df = pd.DataFrame(records)
+    if not df.empty:
+        df["Date"] = pd.to_datetime(df["Date"]).dt.date
+    else:
+        df = pd.DataFrame(columns=["Date", "Start Time", "End Time", "Break Start", "Break End", "Work Duration (hrs)"])
+    return df
+
+
 # ----Load data from Google sheets----
-records = worksheet.get_all_records()
-df = pd.DataFrame(records)
-if not df.empty:
-    df["Date"] = pd.to_datetime(df["Date"]).dt.date
-else:
-    df = pd.DataFrame(columns=["Date", "Start Time", "End Time", "Break Start", "Break End", "Work Duration (hrs)"])
+# records = worksheet.get_all_records()
+# df = pd.DataFrame(records)
+# if not df.empty:
+#     df["Date"] = pd.to_datetime(df["Date"]).dt.date
+# else:
+#     df = pd.DataFrame(columns=["Date", "Start Time", "End Time", "Break Start", "Break End", "Work Duration (hrs)"])
+df = load_data()
 
 # ----Streamlit app----
 # title
@@ -79,8 +91,10 @@ if submitted:
     # ---- Append new row only----
     worksheet.append_row([make_serializable(v) for v in new_entry.values()])
 
+    # records = worksheet.get_all_records()
+    # df = pd.DataFrame(records)
     # ---- Update local DataFrame----
-    df = pd.concat([df, pd.DataFrame(new_entry)], ignore_index=True)
+    # df = pd.concat([df, pd.DataFrame(new_entry)], ignore_index=True)
     st.success(f"Logged {round(work_duration, 2)} hours for {date.strftime('%Y-%m-%d')}")
 
 # --- Display current data ---
