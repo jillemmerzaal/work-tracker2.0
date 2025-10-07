@@ -6,15 +6,14 @@ from google.oauth2.service_account import Credentials
 
 
 # ----Google sheet set up----
-SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
-creds = Credentials.from_service_account_info(
-    st.secrets["google"],
-    scopes=SCOPES,
-)
-client = gspread.authorize(creds)
-
 SHEET_ID = "1uU1e7GNVH4ZYxTiNZ49jF9GIbdR9eyn44Lxg7cfdz9g"
-worksheet = client.open_by_key(SHEET_ID).worksheet("Hours Logged")
+SHEET_NAME = "Hours Logged"
+HEADERS = ["Date", "Start Time", "End Time", "Break Start", "Break End", "Work Duration (hrs)"]
+
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+creds = Credentials.from_service_account_info(st.secrets["google"],scopes=SCOPES)
+client = gspread.authorize(creds)
+worksheet = client.open_by_key(SHEET_ID).worksheet(SHEET_NAME)
 
 # ----Constants----
 PAY_PERIOD_START = datetime(2025, 9, 8).date()
@@ -38,7 +37,6 @@ def make_serializable(val):
         return val.strftime("%H:%M")
     return val
 
-HEADERS = ["Date", "Start Time", "End Time", "Break Start", "Break End", "Work Duration (hrs)"]
 def load_data():
     """Load or initialize the Google Sheet data."""
     values = worksheet.get_all_values()
@@ -60,13 +58,14 @@ def load_data():
         df["Date"] = pd.to_datetime(df["Date"], errors="coerce").dt.date
     return df
 
+def save_to_gsheet(df):
+    """Overwrite Google Sheet with updated DataFrame."""
+    worksheet.clear()
+    worksheet.append_row(HEADERS)
+    if not df.empty:
+        worksheet.append_rows(df.values.tolist())
+
 # ----Load data from Google sheets----
-# records = worksheet.get_all_records()
-# df = pd.DataFrame(records)
-# if not df.empty:
-#     df["Date"] = pd.to_datetime(df["Date"]).dt.date
-# else:
-#     df = pd.DataFrame(columns=["Date", "Start Time", "End Time", "Break Start", "Break End", "Work Duration (hrs)"])
 df = load_data()
 
 # ----Streamlit app----
@@ -100,7 +99,7 @@ if submitted:
     }
 
     # ---- Append new row only----
-    worksheet.append_row([make_serializable(v) for v in new_entry.values()])
+    save_to_gsheet(df)
 
     # ---- Reload the full sheet----
     df = load_data()
@@ -109,7 +108,7 @@ if submitted:
 
 # --- Display current data ---
 st.subheader("Logged Hours")
-st.dataframe(df)
+st.dataframe(df.sort_values(by="Date", ascending=False))
 
 # Optional: show total and remaining hours in current pay period
 st.write(f"Total logged: {df['Work Duration (hrs)'].astype(float).sum():.2f} hrs")
