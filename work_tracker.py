@@ -14,7 +14,7 @@ creds = Credentials.from_service_account_info(
 client = gspread.authorize(creds)
 
 SHEET_ID = "1uU1e7GNVH4ZYxTiNZ49jF9GIbdR9eyn44Lxg7cfdz9g"
-sheet = client.open_by_key(SHEET_ID).worksheet("Hours Logged")
+worksheet = client.open_by_key(SHEET_ID).worksheet("Hours Logged")
 
 # try:
 #     sh = gc.open(SHEET_NAME)
