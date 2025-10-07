@@ -87,25 +87,25 @@ if submitted:
     # df_to_upload = df.map(make_serializable)
     worksheet.append_row(list(new_entry.values()))
     st.success(f"Logged {round(work_duration, 2)} hours for {date}")
-#
-# # Reverse logs
-# df = df.sort_values(by="Date", ascending=False)
-#
-# # Pay period summary
-# today = datetime.now().date()
-# days_since_start = (today - PAY_PERIOD_START).days
-# current_period_index = days_since_start // PAY_PERIOD_LENGTH
-# current_period_start = PAY_PERIOD_START + timedelta(days=current_period_index * PAY_PERIOD_LENGTH)
-# current_period_end = current_period_start + timedelta(days=PAY_PERIOD_LENGTH - 1)
-#
-# current_period_df = df[(df["Date"] >= current_period_start) & (df["Date"] <= current_period_end)]
-# current_total_hours = current_period_df["Work Duration (hrs)"].sum()
-# current_overtime = current_total_hours - TARGET_HOURS
-#
-# st.subheader("Current Pay Period Summary")
-# st.write(f"**Period:** {current_period_start} to {current_period_end}")
-# st.write(f"**Total Hours:** {format_hours_minutes(current_total_hours)}")
-# st.write(f"**Overtime:** {format_hours_minutes(current_overtime)}")
+
+# Reverse logs
+df = df.sort_values(by="Date", ascending=False)
+
+# Pay period summary
+today = datetime.now().date()
+days_since_start = (today - PAY_PERIOD_START).days
+current_period_index = days_since_start // PAY_PERIOD_LENGTH
+current_period_start = PAY_PERIOD_START + timedelta(days=current_period_index * PAY_PERIOD_LENGTH)
+current_period_end = current_period_start + timedelta(days=PAY_PERIOD_LENGTH - 1)
+
+current_period_df = df[(df["Date"] >= current_period_start) & (df["Date"] <= current_period_end)]
+current_total_hours = current_period_df["Work Duration (hrs)"].sum()
+current_overtime = current_total_hours - TARGET_HOURS
+
+st.subheader("Current Pay Period Summary")
+st.write(f"**Period:** {current_period_start} to {current_period_end}")
+st.write(f"**Total Hours:** {format_hours_minutes(current_total_hours)}")
+st.write(f"**Overtime:** {format_hours_minutes(current_overtime)}")
 #
 # # Completed pay periods
 # completed_periods = []
