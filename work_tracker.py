@@ -123,7 +123,7 @@ if not df.empty:
 
 # --- Display current data ---
 st.subheader("Logged Hours")
-df = df.sort_values(by="Date", ascending=False)
+df = df.sort_values(df.columns[0], ascending=False)
 st.dataframe(df)
 # # Reverse logs
 # df = df.sort_values(by="Date", ascending=False)
