@@ -61,7 +61,7 @@ def load_data():
 def save_to_gsheet(df):
     """Overwrite Google Sheet with updated DataFrame."""
     # worksheet.clear()
-    worksheet.append_row(HEADERS)
+    # worksheet.append_row(HEADERS)
     if not df.empty:
         worksheet.append_rows(df.values.tolist())
 
@@ -122,8 +122,8 @@ if not df.empty:
 
 
 # --- Display current data ---
-# st.subheader("Logged Hours")
-# st.dataframe(df.sort_values(df.columns[0], ascending=False))
+st.subheader("Logged Hours")
+st.dataframe(df.sort_values(df.columns[0], ascending=False))
 # # Reverse logs
 # df = df.sort_values(by="Date", ascending=False)
 #
