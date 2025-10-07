@@ -38,13 +38,13 @@ def make_serializable(val):
     return val
 
 def load_data():
-    """Load or initialize the Google Sheet data."""
+    """Load the latest data from the Google Sheet into a DataFrame."""
     records = worksheet.get_all_records()
     df = pd.DataFrame(records)
     if not df.empty:
         df["Date"] = pd.to_datetime(df["Date"]).dt.date
     else:
-        df = pd.DataFrame(columns=["Date", "Start Time", "End Time", "Work Duration (hrs)"])
+        df = pd.DataFrame(columns=["Date", "Start Time", "End Time", "Break Start", "Break End", "Work Duration (hrs)"])
     return df
 
 # ----Load data from Google sheets----
@@ -81,7 +81,7 @@ if submitted:
     }
 
     # ---- Append new row only----
-    worksheet.append_rows(list(new_entry.values()))
+    worksheet.append_rows([make_serializable(v) for v in new_entry.values()])
 
     # ---- Reload the full sheet----
     df = load_data()
