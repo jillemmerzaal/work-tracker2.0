@@ -91,10 +91,9 @@ if submitted:
     # ---- Append new row only----
     worksheet.append_row([make_serializable(v) for v in new_entry.values()])
 
-    # records = worksheet.get_all_records()
-    # df = pd.DataFrame(records)
-    # ---- Update local DataFrame----
-    # df = pd.concat([df, pd.DataFrame(new_entry)], ignore_index=True)
+    # ---- Reload the full sheet----
+    df = load_data()
+
     st.success(f"Logged {round(work_duration, 2)} hours for {date.strftime('%Y-%m-%d')}")
 
 # --- Display current data ---
@@ -106,6 +105,13 @@ st.write(f"Total logged: {df['Work Duration (hrs)'].astype(float).sum():.2f} hrs
 remaining = TARGET_HOURS - df['Work Duration (hrs)'].astype(float).sum()
 st.write(f"Remaining to reach {TARGET_HOURS} hrs target: {format_hours_minutes(remaining)}")
 
+# --- Summary statistics ---
+if not df.empty:
+    total_hours = df["Work Duration (hrs)"].astype(float).sum()
+    st.write(f"**Total logged:** {total_hours:.2f} hrs")
+
+    remaining = TARGET_HOURS - total_hours
+    st.write(f"**Remaining to reach {TARGET_HOURS} hrs target:** {format_hours_minutes(remaining)}")
 
 # # Reverse logs
 # df = df.sort_values(by="Date", ascending=False)
