@@ -83,10 +83,9 @@ if submitted:
         "Work Duration (hrs)": round(work_duration, 2)
     }
 
-    df = pd.concat([df, pd.DataFrame([new_entry])], ignore_index=True)
-    df_to_upload = df.map(make_serializable)
-    worksheet.clear()
-    worksheet.update([df.columns.values.tolist()] + df.values.tolist())
+    # df = pd.concat([df, pd.DataFrame([new_entry])], ignore_index=True)
+    # df_to_upload = df.map(make_serializable)
+    worksheet.append_row(list(new_entry.values()))
     st.success(f"Logged {round(work_duration, 2)} hours for {date}")
 #
 # # Reverse logs
