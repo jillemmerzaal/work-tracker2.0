@@ -75,7 +75,7 @@ if submitted:
     work_duration = (end_dt - start_dt - (break_end_dt - break_start_dt)).total_seconds() / 3600
 
     new_entry = {
-        "Date": date,
+        "Date": date.strftime("%Y-%m-%d"),
         "Start Time": start_time.strftime("%H:%M"),
         "End Time": end_time.strftime("%H:%M"),
         "Break Start": break_start.strftime("%H:%M"),
