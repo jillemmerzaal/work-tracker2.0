@@ -84,6 +84,7 @@ if submitted:
     }
 
     #---- Update full worksheet----
+    df = pd.concat([df, pd.DataFrame([new_entry])], ignore_index=True)
     worksheet.clear()
     worksheet.update([df.columns.values.tolist()] + df.values.tolist())
 
