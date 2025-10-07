@@ -86,7 +86,7 @@ if submitted:
     }
 
     # ---- Append new row only----
-    save_to_gsheet(df)
+    worksheet.append_rows(df.values.tolist())
 
     # ---- Reload the full sheet----
     df = load_data()
