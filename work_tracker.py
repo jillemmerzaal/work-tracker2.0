@@ -5,7 +5,7 @@ import gspread
 from google.oauth2.service_account import Credentials
 
 
-# Load credentials from Streamlit secrets
+# ----Google sheet set up----
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 creds = Credentials.from_service_account_info(
     st.secrets["google"],
@@ -16,14 +16,7 @@ client = gspread.authorize(creds)
 SHEET_ID = "1uU1e7GNVH4ZYxTiNZ49jF9GIbdR9eyn44Lxg7cfdz9g"
 worksheet = client.open_by_key(SHEET_ID).worksheet("Hours Logged")
 
-# try:
-#     sh = gc.open(SHEET_NAME)
-# except gspread.exceptions.SpreadsheetNotFound:
-#     sh = gc.create(SHEET_NAME)
-#     sh.share(creds["client_email"], perm_type="user", role="writer")
-# worksheet = sh.sheet1
-
-# Constants
+# ----Constants----
 PAY_PERIOD_START = datetime(2025, 9, 8).date()
 PAY_PERIOD_LENGTH = 14
 TARGET_HOURS = 60
@@ -45,8 +38,7 @@ def make_serializable(val):
         return val.strftime("%H:%M")
     return val
 
-
-# Load data
+# ----Load data from Google sheets----
 records = worksheet.get_all_records()
 df = pd.DataFrame(records)
 if not df.empty:
@@ -54,7 +46,8 @@ if not df.empty:
 else:
     df = pd.DataFrame(columns=["Date", "Start Time", "End Time", "Break Start", "Break End", "Work Duration (hrs)"])
 
-# Title
+# ----Streamlit app----
+# title
 st.title("Work Time Tracker")
 
 # Input form
@@ -83,29 +76,41 @@ if submitted:
         "Work Duration (hrs)": round(work_duration, 2)
     }
 
-    # df = pd.concat([df, pd.DataFrame([new_entry])], ignore_index=True)
-    # df_to_upload = df.map(make_serializable)
-    worksheet.append_row(list(new_entry.values()))
-    st.success(f"Logged {round(work_duration, 2)} hours for {date}")
+    # ---- Append new row only----
+    worksheet.append_row([make_serializable(v) for v in new_entry.values()])
 
-# Reverse logs
-df = df.sort_values(by="Date", ascending=False)
+    # ---- Update local DataFrame----
+    df = pd.concat([df, pd.DataFrame(new_entry)], ignore_index=True)
+    st.success(f"Logged {round(work_duration, 2)} hours for {date.strftime('%Y-%m-%d')}")
 
-# Pay period summary
-today = datetime.now().date()
-days_since_start = (today - PAY_PERIOD_START).days
-current_period_index = days_since_start // PAY_PERIOD_LENGTH
-current_period_start = PAY_PERIOD_START + timedelta(days=current_period_index * PAY_PERIOD_LENGTH)
-current_period_end = current_period_start + timedelta(days=PAY_PERIOD_LENGTH - 1)
+# --- Display current data ---
+st.subheader("Logged Hours")
+st.dataframe(df)
 
-current_period_df = df[(df["Date"] >= current_period_start) & (df["Date"] <= current_period_end)]
-current_total_hours = current_period_df["Work Duration (hrs)"].sum()
-current_overtime = current_total_hours - TARGET_HOURS
+# Optional: show total and remaining hours in current pay period
+st.write(f"Total logged: {df['Work Duration (hrs)'].astype(float).sum():.2f} hrs")
+remaining = TARGET_HOURS - df['Work Duration (hrs)'].astype(float).sum()
+st.write(f"Remaining to reach {TARGET_HOURS} hrs target: {format_hours_minutes(remaining)}")
 
-st.subheader("Current Pay Period Summary")
-st.write(f"**Period:** {current_period_start} to {current_period_end}")
-st.write(f"**Total Hours:** {format_hours_minutes(current_total_hours)}")
-st.write(f"**Overtime:** {format_hours_minutes(current_overtime)}")
+
+# # Reverse logs
+# df = df.sort_values(by="Date", ascending=False)
+#
+# # Pay period summary
+# today = datetime.now().date()
+# days_since_start = (today - PAY_PERIOD_START).days
+# current_period_index = days_since_start // PAY_PERIOD_LENGTH
+# current_period_start = PAY_PERIOD_START + timedelta(days=current_period_index * PAY_PERIOD_LENGTH)
+# current_period_end = current_period_start + timedelta(days=PAY_PERIOD_LENGTH - 1)
+#
+# current_period_df = df[(df["Date"] >= current_period_start) & (df["Date"] <= current_period_end)]
+# current_total_hours = current_period_df["Work Duration (hrs)"].sum()
+# current_overtime = current_total_hours - TARGET_HOURS
+#
+# st.subheader("Current Pay Period Summary")
+# st.write(f"**Period:** {current_period_start} to {current_period_end}")
+# st.write(f"**Total Hours:** {format_hours_minutes(current_total_hours)}")
+# st.write(f"**Overtime:** {format_hours_minutes(current_overtime)}")
 #
 # # Completed pay periods
 # completed_periods = []
