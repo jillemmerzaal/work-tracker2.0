@@ -36,16 +36,13 @@ def format_hours_minutes(hours_float):
     minutes = total_minutes % 60
     return f"{sign}{hours}h {minutes}m"
 
-def make_serialisable(val):
+def make_serializable(val):
     if pd.isna(val):
         return ""
-
     if isinstance(val, (datetime, pd.Timestamp, pd.Timedelta)):
         return str(val)
-
     if isinstance(val, (time,)):
         return val.strftime("%H:%M")
-
     return val
 
 
