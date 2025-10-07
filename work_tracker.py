@@ -38,24 +38,27 @@ def make_serializable(val):
         return val.strftime("%H:%M")
     return val
 
+HEADERS = ["Date", "Start Time", "End Time", "Break Start", "Break End", "Work Duration (hrs)"]
 def load_data():
-    """Load the latest data from the Google Sheet into a DataFrame."""
+    """Load or initialize the Google Sheet data."""
     values = worksheet.get_all_values()
-    if len(values) > 1:
-        df = pd.DataFrame(values[1:], columns=values[0])
-    elif len(values) == 1:
+
+    # If sheet is empty, add headers
+    if not values:
+        worksheet.append_row(HEADERS)
+        df = pd.DataFrame(columns=HEADERS)
+        return df
+
+    # If only headers exist but no data
+    if len(values) == 1:
         df = pd.DataFrame(columns=values[0])
-    else:
-        df = pd.DataFrame(columns=["Date", "Start Time", "End Time", "Break Start", "Break End", "Work Duration (hrs)"])
+        return df
 
+    # Otherwise, convert existing values into a DataFrame
+    df = pd.DataFrame(values[1:], columns=values[0])
+    if "Date" in df.columns:
+        df["Date"] = pd.to_datetime(df["Date"], errors="coerce").dt.date
     return df
-    # df = pd.DataFrame(records)
-    # if not df.empty:
-    #     df["Date"] = pd.to_datetime(df["Date"]).dt.date
-    # else:
-    #     df = pd.DataFrame(columns=["Date", "Start Time", "End Time", "Break Start", "Break End", "Work Duration (hrs)"])
-    # return df
-
 
 # ----Load data from Google sheets----
 # records = worksheet.get_all_records()
