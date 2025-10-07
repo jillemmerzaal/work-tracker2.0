@@ -106,9 +106,6 @@ if submitted:
 
     st.success(f"Logged {round(work_duration, 2)} hours for {date.strftime('%Y-%m-%d')}")
 
-# --- Display current data ---
-st.subheader("Logged Hours")
-st.dataframe(df.sort_values(by="Date", ascending=False))
 
 # Optional: show total and remaining hours in current pay period
 st.write(f"Total logged: {df['Work Duration (hrs)'].astype(float).sum():.2f} hrs")
@@ -123,6 +120,11 @@ if not df.empty:
     remaining = TARGET_HOURS - total_hours
     st.write(f"**Remaining to reach {TARGET_HOURS} hrs target:** {format_hours_minutes(remaining)}")
 
+
+# --- Display current data ---
+st.subheader("Logged Hours")
+df = df.sort_values(by="Date", ascending=False)
+st.dataframe(df)
 # # Reverse logs
 # df = df.sort_values(by="Date", ascending=False)
 #
