@@ -60,7 +60,7 @@ def load_data():
 
 def save_to_gsheet(df):
     """Overwrite Google Sheet with updated DataFrame."""
-    worksheet.clear()
+    # worksheet.clear()
     worksheet.append_row(HEADERS)
     if not df.empty:
         worksheet.append_rows(df.values.tolist())
