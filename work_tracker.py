@@ -45,10 +45,13 @@ def load_data():
         df["Date"] = pd.to_datetime(df["Date"]).dt.date
     else:
         df = pd.DataFrame(columns=["Date", "Start Time", "End Time", "Break Start", "Break End", "Work Duration (hrs)"])
+        worksheet.update([df.columns.values.tolist()] + df.values.tolist())
+
     return df
 
 # ----Load data from Google sheets----
 df = load_data()
+
 
 # ----Streamlit app----
 # title
