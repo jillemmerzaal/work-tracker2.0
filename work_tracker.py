@@ -79,7 +79,7 @@ if submitted:
     }
 
     # ---- Append new row only----
-    worksheet.append_rows(df.values.tolist())
+    worksheet.append_rows(list(new_entry.values()))
 
     # ---- Reload the full sheet----
     df = load_data()
