@@ -6,18 +6,22 @@ from google.oauth2.service_account import Credentials
 
 
 # Load credentials from Streamlit secrets
-creds = st.secrets["GOOGLE_CREDENTIALS"]
-credentials = Credentials.from_service_account_info(creds)
-gc = gspread.authorize(credentials)
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+creds = Credentials.from_service_account_info(
+    st.secrets["google"],
+    scopes=SCOPES,
+)
+client = gspread.authorize(creds)
 
-# Open or create the sheet
-SHEET_NAME = "work_log"
-try:
-    sh = gc.open(SHEET_NAME)
-except gspread.exceptions.SpreadsheetNotFound:
-    sh = gc.create(SHEET_NAME)
-    sh.share(creds["client_email"], perm_type="user", role="writer")
-worksheet = sh.sheet1
+SHEET_ID = "1uU1e7GNVH4ZYxTiNZ49jF9GIbdR9eyn44Lxg7cfdz9g"
+sheet = client.open_by_key(SHEET_ID).worksheet("Hours Logged")
+
+# try:
+#     sh = gc.open(SHEET_NAME)
+# except gspread.exceptions.SpreadsheetNotFound:
+#     sh = gc.create(SHEET_NAME)
+#     sh.share(creds["client_email"], perm_type="user", role="writer")
+# worksheet = sh.sheet1
 
 # Constants
 PAY_PERIOD_START = datetime(2025, 9, 8).date()
