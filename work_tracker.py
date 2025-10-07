@@ -45,13 +45,6 @@ def load_data():
         df["Date"] = pd.to_datetime(df["Date"]).dt.date
     return df
 
-def save_to_gsheet(df):
-    """Overwrite Google Sheet with updated DataFrame."""
-    # worksheet.clear()
-    # worksheet.append_row(HEADERS)
-    if not df.empty:
-        worksheet.append_rows(df.values.tolist())
-
 # ----Load data from Google sheets----
 df = load_data()
 
@@ -86,7 +79,7 @@ if submitted:
     }
 
     # ---- Append new row only----
-    worksheet.append_rows(df.values.tolist())
+    worksheet.append_rows(list(new_entry.values()))
 
     # ---- Reload the full sheet----
     df = load_data()
@@ -100,17 +93,17 @@ remaining = TARGET_HOURS - df['Work Duration (hrs)'].astype(float).sum()
 st.write(f"Remaining to reach {TARGET_HOURS} hrs target: {format_hours_minutes(remaining)}")
 
 # --- Summary statistics ---
-if not df.empty:
-    total_hours = df["Work Duration (hrs)"].astype(float).sum()
-    st.write(f"**Total logged:** {total_hours:.2f} hrs")
-
-    remaining = TARGET_HOURS - total_hours
-    st.write(f"**Remaining to reach {TARGET_HOURS} hrs target:** {format_hours_minutes(remaining)}")
+# if not df.empty:
+#     total_hours = df["Work Duration (hrs)"].astype(float).sum()
+#     st.write(f"**Total logged:** {total_hours:.2f} hrs")
+#
+#     remaining = TARGET_HOURS - total_hours
+#     st.write(f"**Remaining to reach {TARGET_HOURS} hrs target:** {format_hours_minutes(remaining)}")
 
 
 # --- Display current data ---
-st.subheader("Logged Hours")
-st.dataframe(df.sort_values(df.columns[0], ascending=False))
+# st.subheader("Logged Hours")
+# st.dataframe(df.sort_values(df.columns[0], ascending=False))
 # # Reverse logs
 # df = df.sort_values(by="Date", ascending=False)
 #
